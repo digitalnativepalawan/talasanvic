@@ -781,7 +781,7 @@ export default function App() {
 
 
             <section className="px-5 pb-4">
-              <div className="flex items-center gap-2 rounded-[28px] border hairline bg-white p-2 shadow-card">
+              <div className="flex items-center gap-2 rounded-[28px] bg-[#FFFDF8] p-2 shadow-card">
                 <button onClick={() => setKeyboardOpen((v) => !v)} className={`flex h-11 w-11 items-center justify-center rounded-full ${keyboardOpen ? 'bg-[#2A2420] text-[#FAF5EB]' : 'bg-[#F2ECDF] text-[#5A4F44]'}`} aria-label="Keyboard"><Keyboard className="h-[18px] w-[18px]" /></button>
                 {keyboardOpen ? (
                   <div className="flex flex-1 items-center gap-2 px-1">
