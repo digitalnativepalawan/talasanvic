@@ -703,69 +703,82 @@ export default function App() {
               </div>
             </section>
 
-            <section className="px-5 pb-4">
-              <div className="paper-grain relative overflow-hidden rounded-[32px] border hairline bg-[#FAF5EB] p-6 pb-5 shadow-card">
-                <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#EFE4D0]/70" />
-                <div className="pointer-events-none absolute -left-12 bottom-0 h-28 w-28 rounded-full bg-[#D7CAAB]/40" />
-                <div className="relative flex flex-col items-center">
+            {/* Hero voice orb */}
+            <section className="px-5 pb-6">
+              <div className="relative flex flex-col items-center">
+                <div className="pointer-events-none absolute left-1/2 top-6 h-56 w-56 -translate-x-1/2 rounded-full bg-[#EFE4D0]/50 blur-3xl" />
+                <div className="relative -mt-2">
                   <VoiceOrb state={voiceState} onClick={handleMicTap} />
-                  <div className="mt-3 w-full"><StatusLabel state={voiceState} /></div>
-                  <div className="mt-4 w-full"><Waveform state={voiceState} onClick={handleMicTap} /></div>
-                  <div className="mt-4 flex w-full items-center justify-center gap-2">
-                    <button
-                      onClick={handleMicTap}
-                      disabled={isConnecting}
-                      className={`rounded-full px-4 py-1.5 text-[11px] font-medium shadow-soft ${voiceState === 'idle' ? 'bg-[#2A2420] text-[#FAF5EB]' : 'border hairline bg-white text-[#5A4F44]'} ${isConnecting ? 'opacity-60' : ''}`}
-                    >
-                      {isConnecting ? 'Connecting…' : voiceState === 'idle' ? 'Start voice call' : 'End call'}
-                    </button>
-                  </div>
                 </div>
-
+                <div className="mt-2 w-full"><StatusLabel state={voiceState} /></div>
+                <div className="mt-4 w-2/3"><Waveform state={voiceState} onClick={handleMicTap} /></div>
+                <button
+                  onClick={handleMicTap}
+                  disabled={isConnecting}
+                  className={`mt-5 rounded-full px-6 py-2 text-[12px] font-medium transition ${voiceState === 'idle' ? 'bg-[#2A2420] text-[#FAF5EB] shadow-card' : 'bg-[#F2ECDF] text-[#5A4F44]'} ${isConnecting ? 'opacity-60' : ''}`}
+                >
+                  {isConnecting ? 'Connecting…' : voiceState === 'idle' ? 'Start voice call' : 'End call'}
+                </button>
               </div>
             </section>
 
-            <section className="px-5 pb-4">
-              <div className="mb-2.5 flex items-center justify-between">
-                <span className="text-[10.5px] uppercase tracking-[0.22em] text-[#8A7E6E]">Quick actions</span>
-                <span className="text-[11px] text-[#8A7E6E]">8 categories</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2.5">
-                {QUICK_ACTIONS.map((a) => {
-                  const Icon = a.icon;
-                  return (
-                    <button key={a.label} onClick={() => handleQuickAction(a.key, a.label)} className="chip group flex items-center gap-2.5 rounded-[20px] border hairline bg-white p-3 text-left shadow-soft">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: `${a.accent}14`, color: a.accent }}><Icon className="h-[18px] w-[18px]" /></span>
-                      <div className="flex flex-1 items-center justify-between"><span className="text-[13px] font-medium text-[#2A2420]">{a.label}</span><ChevronRight className="h-3.5 w-3.5 text-[#8A7E6E]" /></div>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-
-            <section className="px-5 pb-4">
+            {/* Conversation — directly below the orb */}
+            <section className="px-5 pb-6">
               <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center gap-2"><span className="h-px w-6 bg-[#D7CAAB]" /><span className="text-[10.5px] uppercase tracking-[0.22em] text-[#8A7E6E]">Conversation</span><span className="h-px w-6 bg-[#D7CAAB]" /></div>
+                <span className="text-[11px] uppercase tracking-[0.22em] text-[#8A7E6E]">Conversation</span>
                 <button onClick={() => setMessages(INITIAL_MESSAGES)} className="text-[11px] text-[#8A7E6E]">Reset</button>
               </div>
-              <div ref={scrollRef} className="no-scrollbar flex max-h-[340px] flex-col gap-3 overflow-y-auto pr-1">
+              <div ref={scrollRef} className="no-scrollbar flex max-h-[360px] flex-col gap-3 overflow-y-auto pr-1">
                 {messages.map((m) => (<MessageBubble key={m.id} m={m} onReserve={openReserve} onFavorite={toggleFavorite} favorites={favoriteSet} reservations={reservationByBiz} />))}
                 {isTyping && <TypingBubble />}
               </div>
             </section>
 
-            <section className="px-5 pb-4">
-              <div className="mb-2 flex items-center justify-between"><span className="text-[10.5px] uppercase tracking-[0.22em] text-[#8A7E6E]">Try asking TALA</span></div>
-              <div className="flex flex-col gap-2">
-                {SUGGESTED_PROMPTS.map((p) => (
-                  <button key={p} onClick={() => handleSuggestion(p)} className="chip flex items-start gap-3 rounded-[20px] border hairline bg-[#F2ECDF] p-3.5 text-left shadow-soft">
-                    <span className="mt-0.5 font-serif-display text-[18px] leading-none text-[#BA6A43]">“</span>
-                    <span className="flex-1 text-[13.5px] leading-snug text-[#2A2420]">{p}</span>
-                    <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-[#8A7E6E]" />
+            {/* Suggested by TALA — contextual recommendation cards */}
+            <section className="px-5 pb-6">
+              <div className="mb-3.5 flex items-center gap-2">
+                <Sparkles className="h-3.5 w-3.5 text-[#BA6A43]" />
+                <span className="text-[11px] uppercase tracking-[0.22em] text-[#8A7E6E]">Suggested by TALA</span>
+              </div>
+              <div className="flex flex-col gap-3">
+                {TALA_SUGGESTIONS.map((s) => (
+                  <button
+                    key={s.title}
+                    onClick={() => (s.soon ? setToast('El Nido Luxury Shuttle — launching soon ✨') : s.query && handleSuggestion(s.query))}
+                    className="chip group flex items-center gap-4 rounded-[24px] bg-[#FFFDF8] px-4 py-4 text-left shadow-soft transition hover:shadow-card"
+                  >
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#F2ECDF] text-[22px]">{s.emoji}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-serif-display text-[17px] leading-tight text-[#2A2420]">{s.title}</div>
+                      <div className="mt-0.5 text-[12px] text-[#8A7E6E]">{s.subtitle}</div>
+                    </div>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-[#D7CAAB] transition group-hover:translate-x-0.5 group-hover:text-[#BA6A43]" />
                   </button>
                 ))}
               </div>
             </section>
+
+            {/* People are asking TALA */}
+            <section className="px-5 pb-6">
+              <div className="mb-3.5 flex items-center gap-2">
+                <Users className="h-3.5 w-3.5 text-[#435947]" />
+                <span className="text-[11px] uppercase tracking-[0.22em] text-[#8A7E6E]">People are asking TALA</span>
+              </div>
+              <div className="flex flex-col">
+                {ASKING_PROMPTS.map((p, i) => (
+                  <button
+                    key={p}
+                    onClick={() => handleSuggestion(p)}
+                    className={`chip flex items-center gap-3 py-3.5 text-left ${i !== 0 ? 'border-t border-[#D7CAAB]/30' : ''}`}
+                  >
+                    <span className="font-serif-display text-[20px] leading-none text-[#BA6A43]/70">“</span>
+                    <span className="flex-1 text-[14px] leading-snug text-[#2A2420]">{p}</span>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-[#D7CAAB]" />
+                  </button>
+                ))}
+              </div>
+            </section>
+
 
             <section className="px-5 pb-4">
               <div className="flex items-center gap-2 rounded-[28px] border hairline bg-white p-2 shadow-card">
