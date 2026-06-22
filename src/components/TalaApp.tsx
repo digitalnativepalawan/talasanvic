@@ -697,7 +697,7 @@ export default function App() {
           <>
             <section className="px-6 pb-5">
               <div className="text-center">
-                <div className="mx-auto mb-2 inline-flex items-center gap-1.5 rounded-full border hairline bg-white/70 px-3 py-1 text-[10.5px] uppercase tracking-[0.2em] text-[#8A7E6E]"><span className="h-1 w-1 rounded-full bg-[#BA6A43]" /> Your AI Island Assistant</div>
+                <div className="mx-auto mb-2 inline-flex items-center gap-1.5 rounded-full bg-[#F2ECDF] px-3 py-1 text-[10.5px] uppercase tracking-[0.2em] text-[#8A7E6E]"><span className="h-1 w-1 rounded-full bg-[#BA6A43]" /> Your AI Island Assistant</div>
                 <h1 className="font-serif-display text-[42px] leading-[1.02] text-[#2A2420]">Hi, I'm <span className="italic text-[#BA6A43]">TALA</span></h1>
                 <p className="mt-1 text-[14px] text-[#5A4F44]">Your San Vicente Island Assistant</p>
               </div>
