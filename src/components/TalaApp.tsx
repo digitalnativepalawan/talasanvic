@@ -289,37 +289,36 @@ function StatusLabel({ state }: { state: VoiceState }) {
 function BusinessCardView({ biz, onReserve, onFavorite, favorite, reservation }: { biz: BusinessCard; onReserve: (b: BusinessCard) => void; onFavorite: (id: string) => void; favorite: boolean; reservation?: Reservation }) {
   const confirmed = reservation?.status === 'confirmed';
   return (
-    <div className="overflow-hidden rounded-[22px] border hairline bg-white shadow-soft">
-      <div className="relative h-36 w-full overflow-hidden">
+    <div className="overflow-hidden rounded-[24px] bg-[#FFFDF8] shadow-card">
+      {/* Edge-to-edge hero photo */}
+      <div className="relative h-52 w-full overflow-hidden">
         <img src={biz.image} alt={biz.name} className="h-full w-full object-cover" />
-        <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-medium text-[#2A2420] shadow-soft">
-          <Star className="h-3 w-3 fill-[#BA6A43] text-[#BA6A43]" />
-          <span>{biz.rating} <span className="text-[#8A7E6E]">({biz.reviewCount})</span></span>
-          <span className="text-[#8A7E6E]">· {biz.distance}</span>
-        </div>
-        <button onClick={() => onFavorite(biz.id)} className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-[#2A2420] shadow-soft">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#2A2420]/70 via-transparent to-transparent" />
+        <button onClick={() => onFavorite(biz.id)} className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 text-[#2A2420] shadow-soft backdrop-blur-sm">
           <Heart className={`h-4 w-4 ${favorite ? 'fill-[#BA6A43] text-[#BA6A43]' : ''}`} />
         </button>
+        <div className="absolute bottom-4 left-4 right-4">
+          <div className="font-serif-display text-[22px] leading-tight text-[#FFFDF8] drop-shadow-sm">{biz.name}</div>
+          <div className="mt-0.5 text-[12px] text-[#FFFDF8]/80">{biz.tag}</div>
+        </div>
       </div>
-      <div className="space-y-2 p-4">
-        <div>
-          <div className="font-serif-display text-[18px] leading-tight text-[#2A2420]">{biz.name}</div>
-          <div className="text-[12px] text-[#8A7E6E]">{biz.tag}</div>
-          {biz.description && <p className="mt-1.5 text-[12.5px] leading-snug text-[#5A4F44]">{biz.description}</p>}
+      <div className="space-y-3 p-4">
+        {biz.description && <p className="font-serif-display text-[17px] leading-snug text-[#2A2420]">{biz.description}</p>}
+        <div className="flex items-center gap-2 text-[12px] text-[#8A7E6E]">
+          <Clock className="h-3.5 w-3.5" /><span>{biz.open}</span>
+          <span className="text-[#D7CAAB]">·</span>
+          <span>{biz.distance}</span>
+          <span className="ml-auto font-medium text-[#435947]">{biz.price}</span>
         </div>
-        <div className="flex items-center justify-between border-t hairline pt-3 text-[12px]">
-          <span className="flex items-center gap-1 text-[#5A4F44]"><Clock className="h-3.5 w-3.5 text-[#8A7E6E]" />{biz.open}</span>
-          <span className="font-medium text-[#435947]">{biz.price}</span>
-        </div>
-        <div className="flex items-center gap-2 pt-1">
+        <div className="flex items-center gap-2 pt-0.5">
           <button
             onClick={() => onReserve(biz)}
-            className={`flex-1 rounded-full py-2.5 text-[12px] font-medium ${confirmed ? 'bg-[#435947] text-[#FAF5EB]' : 'bg-[#2A2420] text-[#FAF5EB]'}`}
+            className={`flex-1 rounded-full py-3 text-[12.5px] font-medium ${confirmed ? 'bg-[#435947] text-[#FAF5EB]' : 'bg-[#2A2420] text-[#FAF5EB]'}`}
           >
             {confirmed ? <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> Confirmed · {reservation?.time}</span> : 'Reserve'}
           </button>
-          <button className="flex h-9 w-9 items-center justify-center rounded-full border hairline text-[#5A4F44]"><Navigation className="h-4 w-4" /></button>
-          <button className="flex h-9 w-9 items-center justify-center rounded-full border hairline text-[#5A4F44]"><Share2 className="h-4 w-4" /></button>
+          <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F2ECDF] text-[#5A4F44]"><Navigation className="h-4 w-4" /></button>
+          <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F2ECDF] text-[#5A4F44]"><Share2 className="h-4 w-4" /></button>
         </div>
       </div>
     </div>
