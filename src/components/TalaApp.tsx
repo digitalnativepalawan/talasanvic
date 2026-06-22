@@ -688,8 +688,8 @@ export default function App() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex h-9 w-9 items-center justify-center rounded-full border hairline bg-white text-[#5A4F44] shadow-soft"><Search className="h-4 w-4" /></button>
-            <button className="flex h-9 w-9 items-center justify-center rounded-full border hairline bg-white text-[#5A4F44] shadow-soft"><MoreHorizontal className="h-4 w-4" /></button>
+            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F2ECDF] text-[#5A4F44] shadow-soft"><Search className="h-4 w-4" /></button>
+            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F2ECDF] text-[#5A4F44] shadow-soft"><MoreHorizontal className="h-4 w-4" /></button>
           </div>
         </header>
 
