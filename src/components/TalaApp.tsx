@@ -123,8 +123,8 @@ const MOCK_BUSINESSES: Record<QuickActionKey, BusinessCard[]> = {
     { id: 'biz-port-barton', name: 'Port Barton Island Hop', tag: 'Small Group · Max 6 pax', rating: 4.8, reviewCount: 147, distance: '18 min drive', price: '₱1,200 / seat', image: 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=900&q=70', open: 'Departs 8:30 AM', category: 'tour', description: 'A quieter route north with hidden lagoons and fewer boats.' },
   ],
   food: [
-    { id: 'biz-kuya-boy', name: "Kuya Boy's Seafood Grill", tag: 'Local Seafood · Beachfront', rating: 4.8, reviewCount: 533, distance: '800 m · 3 min walk', price: '₱380 avg meal', image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=900&q=70', open: 'Open now · until 11 PM', category: 'food', description: 'Grilled tuna tail, kinilaw, and cold coconut. Cash preferred.' },
-    { id: 'biz-sunrise', name: 'Sunrise Café & Bakery', tag: 'Breakfast · Sourdough', rating: 4.7, reviewCount: 201, distance: '1.2 km · 5 min drive', price: '₱260 avg meal', image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=900&q=70', open: 'Open now · 6 AM – 3 PM', category: 'food', description: 'The only real sourdough on the coast. Try the mango butter.' },
+    { id: 'biz-kuya-boy', name: "Kuya Boy's Seafood Grill", tag: 'Local Seafood · Beachfront', rating: 4.8, reviewCount: 533, distance: '800 m · 3 min walk', price: '₱380 avg meal', image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=900&q=70', open: 'Open now · until 11 PM', category: 'food', description: 'Fresh tuna. Cold coconut. Sunset tables.' },
+    { id: 'biz-sunrise', name: 'Sunrise Café & Bakery', tag: 'Breakfast · Sourdough', rating: 4.7, reviewCount: 201, distance: '1.2 km · 5 min drive', price: '₱260 avg meal', image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=900&q=70', open: 'Open now · 6 AM – 3 PM', category: 'food', description: 'Warm sourdough. Mango butter. Slow mornings.' },
   ],
   sunset: [
     { id: 'biz-cape', name: 'Cape San Vicente Sunset Cliff', tag: 'Viewpoint · No entrance fee', rating: 4.9, reviewCount: 318, distance: '3.2 km · 12 min drive', price: 'Free', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=70', open: 'Golden hour 5:48 PM', category: 'beach', description: 'A 15-minute hike up. Locals gather with guitars and coconut wine.' },
@@ -195,6 +195,27 @@ const QUICK_ACTIONS: { key: QuickActionKey; label: string; icon: typeof Palmtree
   { key: 'scooter', label: 'Scooter Rental', icon: Bike, accent: '#1C3A4A' },
 ];
 
+/* ---------- Suggested by TALA (contextual recommendation cards) ---------- */
+const TALA_SUGGESTIONS: { emoji: string; title: string; subtitle: string; query: string | null; key: QuickActionKey | null; soon?: boolean }[] = [
+  { emoji: '🌅', title: 'Best Sunset Tonight', subtitle: '8 travelers interested', query: 'Where should I watch the sunset tonight?', key: 'sunset' },
+  { emoji: '🏝', title: 'Island Hop Tomorrow', subtitle: 'Boat leaves 8:30 AM', query: 'Who wants to go island hopping tomorrow?', key: 'island' },
+  { emoji: '🍤', title: 'Seafood Nearby', subtitle: '4 minute ride', query: 'Best seafood nearby?', key: 'food' },
+  { emoji: '👥', title: 'Meet Travelers', subtitle: '12 currently online', query: 'Find me other travelers', key: 'travelers' },
+  { emoji: '🛵', title: 'El Nido Luxury Shuttle', subtitle: 'Launching soon', query: null, key: null, soon: true },
+];
+
+/* ---------- People are asking TALA ---------- */
+const ASKING_PROMPTS: string[] = [
+  'Who wants to go island hopping tomorrow?',
+  'Best seafood tonight?',
+  'Quiet beach recommendations?',
+  'Romantic dinner suggestions?',
+  'Can I surf this week?',
+  'How do I get to El Nido?',
+];
+
+
+
 const INITIAL_MESSAGES: Message[] = [
   { id: 'm1', role: 'tala', kind: 'text', text: "Good morning, Marco. I see you're staying at The Palms in Alimanguan. Three beautiful days ahead — low tide at 8:30 AM. How can I help?", time: '9:02 AM' },
   { id: 'm2', role: 'user', kind: 'text', text: 'I want to go island hopping tomorrow with a few people. Any groups forming?', time: '9:03 AM' },
@@ -220,23 +241,28 @@ function VoiceOrb({ state, onClick }: { state: VoiceState; onClick: () => void }
   const active = state !== 'idle';
   const coreBg =
     state === 'speaking'
-      ? 'radial-gradient(circle at 30% 28%, #FAF5EB 0%, #EFE4D0 38%, #D7CAAB 72%, #BFA984 100%)'
+      ? 'radial-gradient(circle at 32% 26%, #FFFDF8 0%, #F2ECDF 36%, #E3D6C1 70%, #C9B896 100%)'
       : state === 'listening'
-      ? 'radial-gradient(circle at 30% 28%, #FAF5EB 0%, #F2ECDF 40%, #E3D6C1 72%, #D7CAAB 100%)'
+      ? 'radial-gradient(circle at 32% 26%, #FFFDF8 0%, #F6EFE1 42%, #E9E2D7 74%, #D7CAAB 100%)'
       : state === 'thinking'
-      ? 'radial-gradient(circle at 30% 28%, #F2ECDF 0%, #E3D6C1 42%, #C9B896 76%, #BA6A43 100%)'
-      : 'radial-gradient(circle at 30% 28%, #F6EFE1 0%, #E9E2D7 45%, #D7CAAB 80%, #BFA984 100%)';
+      ? 'radial-gradient(circle at 32% 26%, #F6EFE1 0%, #E9E2D7 42%, #D7CAAB 74%, #C98B65 100%)'
+      : 'radial-gradient(circle at 32% 26%, #FAF5EB 0%, #EFE4D0 46%, #E3D6C1 78%, #D7CAAB 100%)';
   return (
-    <button onClick={onClick} className="relative flex h-52 w-52 items-center justify-center outline-none" aria-label={`TALA voice orb, ${state}`}>
-      <span className={`absolute inset-0 rounded-full bg-[#D7CAAB]/40 ${active ? 'ring-pulse' : ''}`} />
-      <span className={`absolute inset-4 rounded-full bg-[#EFE4D0]/60 ${active ? 'ring-pulse-2' : ''}`} />
+    <button onClick={onClick} className="relative flex h-60 w-60 items-center justify-center outline-none" aria-label={`TALA voice orb, ${state}`}>
+      {/* soft sandstone ambient glow */}
+      <span className="pointer-events-none absolute inset-0 rounded-full bg-[#D7CAAB]/50 blur-3xl orb-glow" />
+      {/* breathing pulse rings */}
+      <span className={`absolute inset-2 rounded-full bg-[#D7CAAB]/25 ${active ? 'ring-pulse' : ''}`} />
+      <span className={`absolute inset-6 rounded-full bg-[#EFE4D0]/40 ${active ? 'ring-pulse-2' : ''}`} />
+      {/* glass halo */}
+      <span className="absolute inset-7 rounded-full bg-gradient-to-b from-white/50 to-transparent" />
       <div
-        className={`relative flex h-32 w-32 items-center justify-center rounded-full ${active ? 'orb-breathe' : ''} ${state === 'thinking' ? 'animate-pulse' : ''}`}
-        style={{ background: coreBg, boxShadow: 'inset 0 2px 8px rgba(255,255,255,0.6), inset 0 -10px 24px rgba(120,90,60,0.18), 0 20px 50px -18px rgba(60,45,30,0.35)' }}
+        className={`relative flex h-40 w-40 items-center justify-center rounded-full orb-breathe ${state === 'thinking' ? 'animate-pulse' : ''}`}
+        style={{ background: coreBg, boxShadow: 'inset 0 3px 12px rgba(255,255,255,0.75), inset 0 -16px 34px rgba(120,90,60,0.16), 0 28px 70px -22px rgba(60,45,30,0.40)' }}
       >
-        <span className="absolute left-5 top-4 h-9 w-9 rounded-full bg-white/60 blur-md" />
-        <div className="relative flex h-[72px] w-[72px] items-center justify-center rounded-full bg-[#FAF5EB] shadow-inner">
-          {state === 'idle' ? <Pause className="h-7 w-7 text-[#8A7E6E]" /> : <div className="font-serif-display text-[34px] leading-none text-[#2A2420]">T</div>}
+        <span className="absolute left-7 top-6 h-12 w-12 rounded-full bg-white/70 blur-lg" />
+        <div className="relative flex h-[88px] w-[88px] items-center justify-center rounded-full bg-[#FFFDF8]/90 shadow-inner backdrop-blur-sm">
+          {state === 'idle' ? <Mic className="h-7 w-7 text-[#BFA984]" /> : <div className="font-serif-display text-[42px] leading-none text-[#2A2420]">T</div>}
         </div>
       </div>
     </button>
@@ -284,37 +310,36 @@ function StatusLabel({ state }: { state: VoiceState }) {
 function BusinessCardView({ biz, onReserve, onFavorite, favorite, reservation }: { biz: BusinessCard; onReserve: (b: BusinessCard) => void; onFavorite: (id: string) => void; favorite: boolean; reservation?: Reservation }) {
   const confirmed = reservation?.status === 'confirmed';
   return (
-    <div className="overflow-hidden rounded-[22px] border hairline bg-white shadow-soft">
-      <div className="relative h-36 w-full overflow-hidden">
+    <div className="overflow-hidden rounded-[24px] bg-[#FFFDF8] shadow-card">
+      {/* Edge-to-edge hero photo */}
+      <div className="relative h-52 w-full overflow-hidden">
         <img src={biz.image} alt={biz.name} className="h-full w-full object-cover" />
-        <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-medium text-[#2A2420] shadow-soft">
-          <Star className="h-3 w-3 fill-[#BA6A43] text-[#BA6A43]" />
-          <span>{biz.rating} <span className="text-[#8A7E6E]">({biz.reviewCount})</span></span>
-          <span className="text-[#8A7E6E]">· {biz.distance}</span>
-        </div>
-        <button onClick={() => onFavorite(biz.id)} className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-[#2A2420] shadow-soft">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#2A2420]/70 via-transparent to-transparent" />
+        <button onClick={() => onFavorite(biz.id)} className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 text-[#2A2420] shadow-soft backdrop-blur-sm">
           <Heart className={`h-4 w-4 ${favorite ? 'fill-[#BA6A43] text-[#BA6A43]' : ''}`} />
         </button>
+        <div className="absolute bottom-4 left-4 right-4">
+          <div className="font-serif-display text-[22px] leading-tight text-[#FFFDF8] drop-shadow-sm">{biz.name}</div>
+          <div className="mt-0.5 text-[12px] text-[#FFFDF8]/80">{biz.tag}</div>
+        </div>
       </div>
-      <div className="space-y-2 p-4">
-        <div>
-          <div className="font-serif-display text-[18px] leading-tight text-[#2A2420]">{biz.name}</div>
-          <div className="text-[12px] text-[#8A7E6E]">{biz.tag}</div>
-          {biz.description && <p className="mt-1.5 text-[12.5px] leading-snug text-[#5A4F44]">{biz.description}</p>}
+      <div className="space-y-3 p-4">
+        {biz.description && <p className="font-serif-display text-[17px] leading-snug text-[#2A2420]">{biz.description}</p>}
+        <div className="flex items-center gap-2 text-[12px] text-[#8A7E6E]">
+          <Clock className="h-3.5 w-3.5" /><span>{biz.open}</span>
+          <span className="text-[#D7CAAB]">·</span>
+          <span>{biz.distance}</span>
+          <span className="ml-auto font-medium text-[#435947]">{biz.price}</span>
         </div>
-        <div className="flex items-center justify-between border-t hairline pt-3 text-[12px]">
-          <span className="flex items-center gap-1 text-[#5A4F44]"><Clock className="h-3.5 w-3.5 text-[#8A7E6E]" />{biz.open}</span>
-          <span className="font-medium text-[#435947]">{biz.price}</span>
-        </div>
-        <div className="flex items-center gap-2 pt-1">
+        <div className="flex items-center gap-2 pt-0.5">
           <button
             onClick={() => onReserve(biz)}
-            className={`flex-1 rounded-full py-2.5 text-[12px] font-medium ${confirmed ? 'bg-[#435947] text-[#FAF5EB]' : 'bg-[#2A2420] text-[#FAF5EB]'}`}
+            className={`flex-1 rounded-full py-3 text-[12.5px] font-medium ${confirmed ? 'bg-[#435947] text-[#FAF5EB]' : 'bg-[#2A2420] text-[#FAF5EB]'}`}
           >
             {confirmed ? <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> Confirmed · {reservation?.time}</span> : 'Reserve'}
           </button>
-          <button className="flex h-9 w-9 items-center justify-center rounded-full border hairline text-[#5A4F44]"><Navigation className="h-4 w-4" /></button>
-          <button className="flex h-9 w-9 items-center justify-center rounded-full border hairline text-[#5A4F44]"><Share2 className="h-4 w-4" /></button>
+          <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F2ECDF] text-[#5A4F44]"><Navigation className="h-4 w-4" /></button>
+          <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F2ECDF] text-[#5A4F44]"><Share2 className="h-4 w-4" /></button>
         </div>
       </div>
     </div>
@@ -323,7 +348,7 @@ function BusinessCardView({ biz, onReserve, onFavorite, favorite, reservation }:
 
 function LocationCardView({ l }: { l: LocationPin }) {
   return (
-    <div className="overflow-hidden rounded-[22px] border hairline bg-white shadow-soft">
+    <div className="overflow-hidden rounded-[24px] bg-[#FFFDF8] shadow-soft">
       <div className="map-bg relative h-28 w-full">
         <svg className="absolute inset-0 h-full w-full opacity-70" viewBox="0 0 400 160" fill="none">
           <path d="M0 110 Q 80 60 160 90 T 400 70" stroke="#6B8068" strokeWidth="1.5" fill="none" opacity="0.55" />
@@ -642,7 +667,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen w-full bg-[#EFE6D6] py-6">
-      <div className="mx-auto flex max-w-[430px] flex-col overflow-hidden rounded-[44px] border border-[#D7CAAB]/60 bg-[#FAF5EB] shadow-luxe" style={{ minHeight: 932 }}>
+      <div className="mx-auto flex max-w-[430px] flex-col overflow-hidden rounded-[44px] bg-[#FAF5EB] shadow-luxe" style={{ minHeight: 932 }}>
         {/* Status bar */}
         <div className="flex items-center justify-between px-6 pt-4 pb-1 text-[12px] font-medium text-[#2A2420]">
           <span>9:41</span>
@@ -656,15 +681,15 @@ export default function App() {
         {/* Header */}
         <header className="flex items-center justify-between px-5 pt-3 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full border hairline bg-white shadow-soft"><Sun className="h-4 w-4 text-[#BA6A43]" /></div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F2ECDF] shadow-soft"><Sun className="h-4 w-4 text-[#BA6A43]" /></div>
             <div className="leading-tight">
               <div className="font-serif-display text-[15px] tracking-wide text-[#2A2420]">SANVIC<span className="text-[#BA6A43]">.ph</span></div>
               <div className="text-[10.5px] uppercase tracking-[0.18em] text-[#8A7E6E]">{showTala ? 'Island Concierge' : 'San Vicente, Palawan'}</div>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex h-9 w-9 items-center justify-center rounded-full border hairline bg-white text-[#5A4F44] shadow-soft"><Search className="h-4 w-4" /></button>
-            <button className="flex h-9 w-9 items-center justify-center rounded-full border hairline bg-white text-[#5A4F44] shadow-soft"><MoreHorizontal className="h-4 w-4" /></button>
+            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F2ECDF] text-[#5A4F44] shadow-soft"><Search className="h-4 w-4" /></button>
+            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F2ECDF] text-[#5A4F44] shadow-soft"><MoreHorizontal className="h-4 w-4" /></button>
           </div>
         </header>
 
@@ -672,78 +697,91 @@ export default function App() {
           <>
             <section className="px-6 pb-5">
               <div className="text-center">
-                <div className="mx-auto mb-2 inline-flex items-center gap-1.5 rounded-full border hairline bg-white/70 px-3 py-1 text-[10.5px] uppercase tracking-[0.2em] text-[#8A7E6E]"><span className="h-1 w-1 rounded-full bg-[#BA6A43]" /> Your AI Island Assistant</div>
+                <div className="mx-auto mb-2 inline-flex items-center gap-1.5 rounded-full bg-[#F2ECDF] px-3 py-1 text-[10.5px] uppercase tracking-[0.2em] text-[#8A7E6E]"><span className="h-1 w-1 rounded-full bg-[#BA6A43]" /> Your AI Island Assistant</div>
                 <h1 className="font-serif-display text-[42px] leading-[1.02] text-[#2A2420]">Hi, I'm <span className="italic text-[#BA6A43]">TALA</span></h1>
                 <p className="mt-1 text-[14px] text-[#5A4F44]">Your San Vicente Island Assistant</p>
               </div>
             </section>
 
-            <section className="px-5 pb-4">
-              <div className="paper-grain relative overflow-hidden rounded-[32px] border hairline bg-[#FAF5EB] p-6 pb-5 shadow-card">
-                <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#EFE4D0]/70" />
-                <div className="pointer-events-none absolute -left-12 bottom-0 h-28 w-28 rounded-full bg-[#D7CAAB]/40" />
-                <div className="relative flex flex-col items-center">
+            {/* Hero voice orb */}
+            <section className="px-5 pb-6">
+              <div className="relative flex flex-col items-center">
+                <div className="pointer-events-none absolute left-1/2 top-6 h-56 w-56 -translate-x-1/2 rounded-full bg-[#EFE4D0]/50 blur-3xl" />
+                <div className="relative -mt-2">
                   <VoiceOrb state={voiceState} onClick={handleMicTap} />
-                  <div className="mt-3 w-full"><StatusLabel state={voiceState} /></div>
-                  <div className="mt-4 w-full"><Waveform state={voiceState} onClick={handleMicTap} /></div>
-                  <div className="mt-4 flex w-full items-center justify-center gap-2">
-                    <button
-                      onClick={handleMicTap}
-                      disabled={isConnecting}
-                      className={`rounded-full px-4 py-1.5 text-[11px] font-medium shadow-soft ${voiceState === 'idle' ? 'bg-[#2A2420] text-[#FAF5EB]' : 'border hairline bg-white text-[#5A4F44]'} ${isConnecting ? 'opacity-60' : ''}`}
-                    >
-                      {isConnecting ? 'Connecting…' : voiceState === 'idle' ? 'Start voice call' : 'End call'}
-                    </button>
-                  </div>
                 </div>
-
+                <div className="mt-2 w-full"><StatusLabel state={voiceState} /></div>
+                <div className="mt-4 w-2/3"><Waveform state={voiceState} onClick={handleMicTap} /></div>
+                <button
+                  onClick={handleMicTap}
+                  disabled={isConnecting}
+                  className={`mt-5 rounded-full px-6 py-2 text-[12px] font-medium transition ${voiceState === 'idle' ? 'bg-[#2A2420] text-[#FAF5EB] shadow-card' : 'bg-[#F2ECDF] text-[#5A4F44]'} ${isConnecting ? 'opacity-60' : ''}`}
+                >
+                  {isConnecting ? 'Connecting…' : voiceState === 'idle' ? 'Start voice call' : 'End call'}
+                </button>
               </div>
             </section>
 
-            <section className="px-5 pb-4">
-              <div className="mb-2.5 flex items-center justify-between">
-                <span className="text-[10.5px] uppercase tracking-[0.22em] text-[#8A7E6E]">Quick actions</span>
-                <span className="text-[11px] text-[#8A7E6E]">8 categories</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2.5">
-                {QUICK_ACTIONS.map((a) => {
-                  const Icon = a.icon;
-                  return (
-                    <button key={a.label} onClick={() => handleQuickAction(a.key, a.label)} className="chip group flex items-center gap-2.5 rounded-[20px] border hairline bg-white p-3 text-left shadow-soft">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: `${a.accent}14`, color: a.accent }}><Icon className="h-[18px] w-[18px]" /></span>
-                      <div className="flex flex-1 items-center justify-between"><span className="text-[13px] font-medium text-[#2A2420]">{a.label}</span><ChevronRight className="h-3.5 w-3.5 text-[#8A7E6E]" /></div>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-
-            <section className="px-5 pb-4">
+            {/* Conversation — directly below the orb */}
+            <section className="px-5 pb-6">
               <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center gap-2"><span className="h-px w-6 bg-[#D7CAAB]" /><span className="text-[10.5px] uppercase tracking-[0.22em] text-[#8A7E6E]">Conversation</span><span className="h-px w-6 bg-[#D7CAAB]" /></div>
+                <span className="text-[11px] uppercase tracking-[0.22em] text-[#8A7E6E]">Conversation</span>
                 <button onClick={() => setMessages(INITIAL_MESSAGES)} className="text-[11px] text-[#8A7E6E]">Reset</button>
               </div>
-              <div ref={scrollRef} className="no-scrollbar flex max-h-[340px] flex-col gap-3 overflow-y-auto pr-1">
+              <div ref={scrollRef} className="no-scrollbar flex max-h-[360px] flex-col gap-3 overflow-y-auto pr-1">
                 {messages.map((m) => (<MessageBubble key={m.id} m={m} onReserve={openReserve} onFavorite={toggleFavorite} favorites={favoriteSet} reservations={reservationByBiz} />))}
                 {isTyping && <TypingBubble />}
               </div>
             </section>
 
-            <section className="px-5 pb-4">
-              <div className="mb-2 flex items-center justify-between"><span className="text-[10.5px] uppercase tracking-[0.22em] text-[#8A7E6E]">Try asking TALA</span></div>
-              <div className="flex flex-col gap-2">
-                {SUGGESTED_PROMPTS.map((p) => (
-                  <button key={p} onClick={() => handleSuggestion(p)} className="chip flex items-start gap-3 rounded-[20px] border hairline bg-[#F2ECDF] p-3.5 text-left shadow-soft">
-                    <span className="mt-0.5 font-serif-display text-[18px] leading-none text-[#BA6A43]">“</span>
-                    <span className="flex-1 text-[13.5px] leading-snug text-[#2A2420]">{p}</span>
-                    <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-[#8A7E6E]" />
+            {/* Suggested by TALA — contextual recommendation cards */}
+            <section className="px-5 pb-6">
+              <div className="mb-3.5 flex items-center gap-2">
+                <Sparkles className="h-3.5 w-3.5 text-[#BA6A43]" />
+                <span className="text-[11px] uppercase tracking-[0.22em] text-[#8A7E6E]">Suggested by TALA</span>
+              </div>
+              <div className="flex flex-col gap-3">
+                {TALA_SUGGESTIONS.map((s) => (
+                  <button
+                    key={s.title}
+                    onClick={() => (s.soon ? setToast('El Nido Luxury Shuttle — launching soon ✨') : s.query && handleSuggestion(s.query))}
+                    className="chip group flex items-center gap-4 rounded-[24px] bg-[#FFFDF8] px-4 py-4 text-left shadow-soft transition hover:shadow-card"
+                  >
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#F2ECDF] text-[22px]">{s.emoji}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-serif-display text-[17px] leading-tight text-[#2A2420]">{s.title}</div>
+                      <div className="mt-0.5 text-[12px] text-[#8A7E6E]">{s.subtitle}</div>
+                    </div>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-[#D7CAAB] transition group-hover:translate-x-0.5 group-hover:text-[#BA6A43]" />
                   </button>
                 ))}
               </div>
             </section>
 
+            {/* People are asking TALA */}
+            <section className="px-5 pb-6">
+              <div className="mb-3.5 flex items-center gap-2">
+                <Users className="h-3.5 w-3.5 text-[#435947]" />
+                <span className="text-[11px] uppercase tracking-[0.22em] text-[#8A7E6E]">People are asking TALA</span>
+              </div>
+              <div className="flex flex-col">
+                {ASKING_PROMPTS.map((p, i) => (
+                  <button
+                    key={p}
+                    onClick={() => handleSuggestion(p)}
+                    className={`chip flex items-center gap-3 py-3.5 text-left ${i !== 0 ? 'border-t border-[#D7CAAB]/30' : ''}`}
+                  >
+                    <span className="font-serif-display text-[20px] leading-none text-[#BA6A43]/70">“</span>
+                    <span className="flex-1 text-[14px] leading-snug text-[#2A2420]">{p}</span>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-[#D7CAAB]" />
+                  </button>
+                ))}
+              </div>
+            </section>
+
+
             <section className="px-5 pb-4">
-              <div className="flex items-center gap-2 rounded-[28px] border hairline bg-white p-2 shadow-card">
+              <div className="flex items-center gap-2 rounded-[28px] bg-[#FFFDF8] p-2 shadow-card">
                 <button onClick={() => setKeyboardOpen((v) => !v)} className={`flex h-11 w-11 items-center justify-center rounded-full ${keyboardOpen ? 'bg-[#2A2420] text-[#FAF5EB]' : 'bg-[#F2ECDF] text-[#5A4F44]'}`} aria-label="Keyboard"><Keyboard className="h-[18px] w-[18px]" /></button>
                 {keyboardOpen ? (
                   <div className="flex flex-1 items-center gap-2 px-1">
@@ -761,7 +799,7 @@ export default function App() {
                 <button onClick={() => { const pin: LocationPin = { id: 'pin-me', name: 'Your current location', distance: 'Alimanguan, San Vicente', meta: 'Shared just now with TALA', category: 'town' }; appendMessage({ role: 'user', kind: 'location', location: pin }); runQuery('What is near me?', 'food', { text: "Three places within 1 km. Kuya Boy's is the top pick tonight — fresh tuna just off the boat.", cards: [MOCK_BUSINESSES.food[0]] }); }} className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F2ECDF] text-[#5A4F44]" aria-label="Share location"><MapPin className="h-[18px] w-[18px]" /></button>
               </div>
               <div className="mt-2.5 flex items-center justify-between">
-                <button onClick={() => setToast('Connecting you with a host…')} className="flex items-center gap-2 rounded-full border hairline bg-white px-3 py-2 text-[12px] text-[#2A2420] shadow-soft"><Headphones className="h-3.5 w-3.5 text-[#435947]" /> Talk to a human host</button>
+                <button onClick={() => setToast('Connecting you with a host…')} className="flex items-center gap-2 rounded-full bg-[#F2ECDF] px-3 py-2 text-[12px] text-[#2A2420]"><Headphones className="h-3.5 w-3.5 text-[#435947]" /> Talk to a human host</button>
                 <div className="flex items-center gap-1.5 text-[11px] text-[#8A7E6E]"><span className="h-1 w-1 rounded-full bg-[#435947]" /> End-to-end encrypted</div>
               </div>
             </section>
@@ -771,14 +809,14 @@ export default function App() {
         {!showTala && <TabPanel tab={activeNav} onClose={() => setActiveNav('tala')} reservations={reservations} favorites={favoriteSet} favoriteBusinesses={favoriteBusinesses} />}
 
         {/* Bottom Nav */}
-        <nav className="sticky bottom-0 mt-auto border-t hairline bg-[#FAF5EB]/95 px-4 pb-5 pt-3 backdrop-blur">
+        <nav className="sticky bottom-0 mt-auto bg-[#FAF5EB]/90 px-4 pb-5 pt-3 backdrop-blur-xl">
           <div className="flex items-center justify-between">
             {[
-              { key: 'map', label: 'Map', Icon: Map },
-              { key: 'community', label: 'Community', Icon: Users },
+              { key: 'map', label: 'Explore', Icon: Compass },
+              { key: 'community', label: 'Travelers', Icon: Users },
               { key: 'tala', label: 'TALA', Icon: Sparkles, center: true },
-              { key: 'experiences', label: 'Experiences', Icon: Compass },
-              { key: 'profile', label: 'Profile', Icon: User },
+              { key: 'experiences', label: 'Discover', Icon: Map },
+              { key: 'profile', label: 'Saved', Icon: Heart },
             ].map(({ key, label, Icon, center }) => {
               const active = activeNav === key;
               if (center) {

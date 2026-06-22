@@ -209,6 +209,13 @@ html, body, #root {
 .ring-pulse { animation: pulseRing 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
 .ring-pulse-2 { animation: pulseRing 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite; animation-delay: 1.2s; }
 
+/* Soft sandstone ambient glow that breathes with the orb */
+@keyframes orbGlow {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.12); opacity: 0.85; }
+}
+.orb-glow { animation: orbGlow 5.6s ease-in-out infinite; }
+
 /* Waveform bars */
 @keyframes wave {
   0%, 100% { transform: scaleY(0.35); }
