@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { useDograhWidget } from './hooks/useDograhWidget';
+import { useDograhWidget } from '../hooks/useDograhWidget';
 import {
   Mic,
   MicOff,
