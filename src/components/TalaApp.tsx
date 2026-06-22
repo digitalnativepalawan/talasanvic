@@ -799,7 +799,7 @@ export default function App() {
                 <button onClick={() => { const pin: LocationPin = { id: 'pin-me', name: 'Your current location', distance: 'Alimanguan, San Vicente', meta: 'Shared just now with TALA', category: 'town' }; appendMessage({ role: 'user', kind: 'location', location: pin }); runQuery('What is near me?', 'food', { text: "Three places within 1 km. Kuya Boy's is the top pick tonight — fresh tuna just off the boat.", cards: [MOCK_BUSINESSES.food[0]] }); }} className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F2ECDF] text-[#5A4F44]" aria-label="Share location"><MapPin className="h-[18px] w-[18px]" /></button>
               </div>
               <div className="mt-2.5 flex items-center justify-between">
-                <button onClick={() => setToast('Connecting you with a host…')} className="flex items-center gap-2 rounded-full border hairline bg-white px-3 py-2 text-[12px] text-[#2A2420] shadow-soft"><Headphones className="h-3.5 w-3.5 text-[#435947]" /> Talk to a human host</button>
+                <button onClick={() => setToast('Connecting you with a host…')} className="flex items-center gap-2 rounded-full bg-[#F2ECDF] px-3 py-2 text-[12px] text-[#2A2420]"><Headphones className="h-3.5 w-3.5 text-[#435947]" /> Talk to a human host</button>
                 <div className="flex items-center gap-1.5 text-[11px] text-[#8A7E6E]"><span className="h-1 w-1 rounded-full bg-[#435947]" /> End-to-end encrypted</div>
               </div>
             </section>
