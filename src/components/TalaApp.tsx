@@ -220,23 +220,28 @@ function VoiceOrb({ state, onClick }: { state: VoiceState; onClick: () => void }
   const active = state !== 'idle';
   const coreBg =
     state === 'speaking'
-      ? 'radial-gradient(circle at 30% 28%, #FAF5EB 0%, #EFE4D0 38%, #D7CAAB 72%, #BFA984 100%)'
+      ? 'radial-gradient(circle at 32% 26%, #FFFDF8 0%, #F2ECDF 36%, #E3D6C1 70%, #C9B896 100%)'
       : state === 'listening'
-      ? 'radial-gradient(circle at 30% 28%, #FAF5EB 0%, #F2ECDF 40%, #E3D6C1 72%, #D7CAAB 100%)'
+      ? 'radial-gradient(circle at 32% 26%, #FFFDF8 0%, #F6EFE1 42%, #E9E2D7 74%, #D7CAAB 100%)'
       : state === 'thinking'
-      ? 'radial-gradient(circle at 30% 28%, #F2ECDF 0%, #E3D6C1 42%, #C9B896 76%, #BA6A43 100%)'
-      : 'radial-gradient(circle at 30% 28%, #F6EFE1 0%, #E9E2D7 45%, #D7CAAB 80%, #BFA984 100%)';
+      ? 'radial-gradient(circle at 32% 26%, #F6EFE1 0%, #E9E2D7 42%, #D7CAAB 74%, #C98B65 100%)'
+      : 'radial-gradient(circle at 32% 26%, #FAF5EB 0%, #EFE4D0 46%, #E3D6C1 78%, #D7CAAB 100%)';
   return (
-    <button onClick={onClick} className="relative flex h-52 w-52 items-center justify-center outline-none" aria-label={`TALA voice orb, ${state}`}>
-      <span className={`absolute inset-0 rounded-full bg-[#D7CAAB]/40 ${active ? 'ring-pulse' : ''}`} />
-      <span className={`absolute inset-4 rounded-full bg-[#EFE4D0]/60 ${active ? 'ring-pulse-2' : ''}`} />
+    <button onClick={onClick} className="relative flex h-60 w-60 items-center justify-center outline-none" aria-label={`TALA voice orb, ${state}`}>
+      {/* soft sandstone ambient glow */}
+      <span className="pointer-events-none absolute inset-0 rounded-full bg-[#D7CAAB]/50 blur-3xl orb-glow" />
+      {/* breathing pulse rings */}
+      <span className={`absolute inset-2 rounded-full bg-[#D7CAAB]/25 ${active ? 'ring-pulse' : ''}`} />
+      <span className={`absolute inset-6 rounded-full bg-[#EFE4D0]/40 ${active ? 'ring-pulse-2' : ''}`} />
+      {/* glass halo */}
+      <span className="absolute inset-7 rounded-full bg-gradient-to-b from-white/50 to-transparent" />
       <div
-        className={`relative flex h-32 w-32 items-center justify-center rounded-full ${active ? 'orb-breathe' : ''} ${state === 'thinking' ? 'animate-pulse' : ''}`}
-        style={{ background: coreBg, boxShadow: 'inset 0 2px 8px rgba(255,255,255,0.6), inset 0 -10px 24px rgba(120,90,60,0.18), 0 20px 50px -18px rgba(60,45,30,0.35)' }}
+        className={`relative flex h-40 w-40 items-center justify-center rounded-full orb-breathe ${state === 'thinking' ? 'animate-pulse' : ''}`}
+        style={{ background: coreBg, boxShadow: 'inset 0 3px 12px rgba(255,255,255,0.75), inset 0 -16px 34px rgba(120,90,60,0.16), 0 28px 70px -22px rgba(60,45,30,0.40)' }}
       >
-        <span className="absolute left-5 top-4 h-9 w-9 rounded-full bg-white/60 blur-md" />
-        <div className="relative flex h-[72px] w-[72px] items-center justify-center rounded-full bg-[#FAF5EB] shadow-inner">
-          {state === 'idle' ? <Pause className="h-7 w-7 text-[#8A7E6E]" /> : <div className="font-serif-display text-[34px] leading-none text-[#2A2420]">T</div>}
+        <span className="absolute left-7 top-6 h-12 w-12 rounded-full bg-white/70 blur-lg" />
+        <div className="relative flex h-[88px] w-[88px] items-center justify-center rounded-full bg-[#FFFDF8]/90 shadow-inner backdrop-blur-sm">
+          {state === 'idle' ? <Mic className="h-7 w-7 text-[#BFA984]" /> : <div className="font-serif-display text-[42px] leading-none text-[#2A2420]">T</div>}
         </div>
       </div>
     </button>
