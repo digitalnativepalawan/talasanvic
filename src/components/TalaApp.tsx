@@ -809,14 +809,14 @@ export default function App() {
         {!showTala && <TabPanel tab={activeNav} onClose={() => setActiveNav('tala')} reservations={reservations} favorites={favoriteSet} favoriteBusinesses={favoriteBusinesses} />}
 
         {/* Bottom Nav */}
-        <nav className="sticky bottom-0 mt-auto border-t hairline bg-[#FAF5EB]/95 px-4 pb-5 pt-3 backdrop-blur">
+        <nav className="sticky bottom-0 mt-auto bg-[#FAF5EB]/90 px-4 pb-5 pt-3 backdrop-blur-xl">
           <div className="flex items-center justify-between">
             {[
-              { key: 'map', label: 'Map', Icon: Map },
-              { key: 'community', label: 'Community', Icon: Users },
+              { key: 'map', label: 'Explore', Icon: Compass },
+              { key: 'community', label: 'Travelers', Icon: Users },
               { key: 'tala', label: 'TALA', Icon: Sparkles, center: true },
-              { key: 'experiences', label: 'Experiences', Icon: Compass },
-              { key: 'profile', label: 'Profile', Icon: User },
+              { key: 'experiences', label: 'Discover', Icon: Map },
+              { key: 'profile', label: 'Saved', Icon: Heart },
             ].map(({ key, label, Icon, center }) => {
               const active = activeNav === key;
               if (center) {
