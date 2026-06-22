@@ -681,7 +681,7 @@ export default function App() {
         {/* Header */}
         <header className="flex items-center justify-between px-5 pt-3 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full border hairline bg-white shadow-soft"><Sun className="h-4 w-4 text-[#BA6A43]" /></div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F2ECDF] shadow-soft"><Sun className="h-4 w-4 text-[#BA6A43]" /></div>
             <div className="leading-tight">
               <div className="font-serif-display text-[15px] tracking-wide text-[#2A2420]">SANVIC<span className="text-[#BA6A43]">.ph</span></div>
               <div className="text-[10.5px] uppercase tracking-[0.18em] text-[#8A7E6E]">{showTala ? 'Island Concierge' : 'San Vicente, Palawan'}</div>
