@@ -348,7 +348,7 @@ function BusinessCardView({ biz, onReserve, onFavorite, favorite, reservation }:
 
 function LocationCardView({ l }: { l: LocationPin }) {
   return (
-    <div className="overflow-hidden rounded-[22px] border hairline bg-white shadow-soft">
+    <div className="overflow-hidden rounded-[24px] bg-[#FFFDF8] shadow-soft">
       <div className="map-bg relative h-28 w-full">
         <svg className="absolute inset-0 h-full w-full opacity-70" viewBox="0 0 400 160" fill="none">
           <path d="M0 110 Q 80 60 160 90 T 400 70" stroke="#6B8068" strokeWidth="1.5" fill="none" opacity="0.55" />
