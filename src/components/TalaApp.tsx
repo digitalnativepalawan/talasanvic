@@ -195,6 +195,27 @@ const QUICK_ACTIONS: { key: QuickActionKey; label: string; icon: typeof Palmtree
   { key: 'scooter', label: 'Scooter Rental', icon: Bike, accent: '#1C3A4A' },
 ];
 
+/* ---------- Suggested by TALA (contextual recommendation cards) ---------- */
+const TALA_SUGGESTIONS: { emoji: string; title: string; subtitle: string; query: string | null; key: QuickActionKey | null; soon?: boolean }[] = [
+  { emoji: '🌅', title: 'Best Sunset Tonight', subtitle: '8 travelers interested', query: 'Where should I watch the sunset tonight?', key: 'sunset' },
+  { emoji: '🏝', title: 'Island Hop Tomorrow', subtitle: 'Boat leaves 8:30 AM', query: 'Who wants to go island hopping tomorrow?', key: 'island' },
+  { emoji: '🍤', title: 'Seafood Nearby', subtitle: '4 minute ride', query: 'Best seafood nearby?', key: 'food' },
+  { emoji: '👥', title: 'Meet Travelers', subtitle: '12 currently online', query: 'Find me other travelers', key: 'travelers' },
+  { emoji: '🛵', title: 'El Nido Luxury Shuttle', subtitle: 'Launching soon', query: null, key: null, soon: true },
+];
+
+/* ---------- People are asking TALA ---------- */
+const ASKING_PROMPTS: string[] = [
+  'Who wants to go island hopping tomorrow?',
+  'Best seafood tonight?',
+  'Quiet beach recommendations?',
+  'Romantic dinner suggestions?',
+  'Can I surf this week?',
+  'How do I get to El Nido?',
+];
+
+
+
 const INITIAL_MESSAGES: Message[] = [
   { id: 'm1', role: 'tala', kind: 'text', text: "Good morning, Marco. I see you're staying at The Palms in Alimanguan. Three beautiful days ahead — low tide at 8:30 AM. How can I help?", time: '9:02 AM' },
   { id: 'm2', role: 'user', kind: 'text', text: 'I want to go island hopping tomorrow with a few people. Any groups forming?', time: '9:03 AM' },
