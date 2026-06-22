@@ -667,7 +667,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen w-full bg-[#EFE6D6] py-6">
-      <div className="mx-auto flex max-w-[430px] flex-col overflow-hidden rounded-[44px] border border-[#D7CAAB]/60 bg-[#FAF5EB] shadow-luxe" style={{ minHeight: 932 }}>
+      <div className="mx-auto flex max-w-[430px] flex-col overflow-hidden rounded-[44px] bg-[#FAF5EB] shadow-luxe" style={{ minHeight: 932 }}>
         {/* Status bar */}
         <div className="flex items-center justify-between px-6 pt-4 pb-1 text-[12px] font-medium text-[#2A2420]">
           <span>9:41</span>
