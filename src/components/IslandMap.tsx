@@ -1,8 +1,14 @@
-﻿import { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Layers, MapPin, Waves, Mountain, Sailboat } from 'lucide-react';
+
+/* ============================================================
+   IslandMap — San Vicente, Palawan interactive map
+   Leaflet + react-leaflet · satellite/street toggle
+   Barangays (10) + tourism POIs (beaches, falls, islands)
+   ============================================================ */
 
 type PinCategory = 'barangay' | 'beach' | 'falls' | 'island';
 
@@ -15,24 +21,28 @@ type MapPinData = {
   blurb: string;
 };
 
+/* Barangays ordered north -> south along the coast.
+   Port Barton and Poblacion coordinates verified (PhilAtlas).
+   Remaining barangays placed relative to those two confirmed anchors
+   and San Vicente's official north-to-south barrio order. */
 const BARANGAYS: MapPinData[] = [
-  { id: 'brgy-binga', name: 'Binga', lat: 10.6395, lng: 119.2230, category: 'barangay', blurb: 'Northernmost barangay - quiet coastline, home to Binga Beach Resort.' },
+  { id: 'brgy-binga', name: 'Binga', lat: 10.6395, lng: 119.2230, category: 'barangay', blurb: 'Northernmost barangay — quiet coastline, home to Binga Beach Resort.' },
   { id: 'brgy-caruray', name: 'Caruray', lat: 10.5980, lng: 119.1840, category: 'barangay', blurb: 'Remote southern-Taytay-border barangay with Sta. Cruz cove.' },
   { id: 'brgy-port-barton', name: 'Port Barton', lat: 10.4108, lng: 119.1785, category: 'barangay', blurb: 'Backpacker hub and gateway to Port Barton Marine Park island-hopping.' },
   { id: 'brgy-kemdeng', name: 'Kemdeng', lat: 10.4550, lng: 119.2120, category: 'barangay', blurb: 'Inland farming barangay between Port Barton and the Poblacion side.' },
   { id: 'brgy-new-canipo', name: 'New Canipo', lat: 10.4830, lng: 119.2300, category: 'barangay', blurb: 'Small interior barangay along the road connecting the two coasts.' },
-  { id: 'brgy-sto-nino', name: 'Sto. Nino', lat: 10.5050, lng: 119.2600, category: 'barangay', blurb: 'Home to Bato ni Ningning - wind-sculpted dunes, far from Long Beach crowds.' },
-  { id: 'brgy-alimanguan', name: 'Alimanguan', lat: 10.5550, lng: 119.2480, category: 'barangay', blurb: 'Long Beach quiet northern stretch - boutique resorts, fewer crowds.' },
-  { id: 'brgy-new-agutaya', name: 'New Agutaya', lat: 10.5430, lng: 119.2510, category: 'barangay', blurb: 'Long Beach frontage - sourdough cafes and beach bars.' },
-  { id: 'brgy-poblacion', name: 'Poblacion', lat: 10.5306, lng: 119.2548, category: 'barangay', blurb: 'Town center - municipal hall, market, port, airport 2.5 km away.' },
+  { id: 'brgy-sto-nino', name: 'Sto. Niño', lat: 10.5050, lng: 119.2600, category: 'barangay', blurb: 'Home to Bato ni Ningning — wind-sculpted dunes, far from Long Beach crowds.' },
+  { id: 'brgy-alimanguan', name: 'Alimanguan', lat: 10.5550, lng: 119.2480, category: 'barangay', blurb: 'Long Beach\'s quiet northern stretch — boutique resorts, fewer crowds.' },
+  { id: 'brgy-new-agutaya', name: 'New Agutaya', lat: 10.5430, lng: 119.2510, category: 'barangay', blurb: 'Long Beach frontage — sourdough cafés and beach bars.' },
+  { id: 'brgy-poblacion', name: 'Poblacion', lat: 10.5306, lng: 119.2548, category: 'barangay', blurb: 'Town center — municipal hall, market, port, airport 2.5 km away.' },
   { id: 'brgy-san-isidro', name: 'San Isidro', lat: 10.5190, lng: 119.2560, category: 'barangay', blurb: 'Southern end of Long Beach, transitioning toward Puerto Princesa.' },
 ];
 
 const POIS: MapPinData[] = [
-  { id: 'poi-long-beach', name: 'Long Beach', lat: 10.5380, lng: 119.2520, category: 'beach', blurb: '14.7 km of white sand - the longest contiguous beach in the Philippines.' },
+  { id: 'poi-long-beach', name: 'Long Beach', lat: 10.5380, lng: 119.2520, category: 'beach', blurb: '14.7 km of white sand — the longest contiguous beach in the Philippines.' },
   { id: 'poi-port-barton-marine-park', name: 'Port Barton Marine Park', lat: 10.4350, lng: 119.1600, category: 'island', blurb: 'Protected reef and island-hopping circuit off Port Barton.' },
   { id: 'poi-boayan', name: 'Boayan Island', lat: 10.4520, lng: 119.1180, category: 'island', blurb: 'White-sand island stop on most Port Barton island-hopping tours.' },
-  { id: 'poi-bigaho-falls', name: 'Bigaho Falls', lat: 10.4180, lng: 119.2080, category: 'falls', blurb: 'Jungle waterfall hike near Port Barton - rope-assisted climb up.' },
+  { id: 'poi-bigaho-falls', name: 'Bigaho Falls', lat: 10.4180, lng: 119.2080, category: 'falls', blurb: 'Jungle waterfall hike near Port Barton — rope-assisted climb up.' },
   { id: 'poi-cape-sunset', name: 'Cape San Vicente Sunset Cliff', lat: 10.5260, lng: 119.2470, category: 'beach', blurb: '15-minute hike, free access, golden-hour gathering spot.' },
 ];
 
@@ -64,11 +74,11 @@ function divIcon(category: PinCategory) {
 const TILE_LAYERS = {
   street: {
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution: '(c) OpenStreetMap contributors',
+    attribution: '&copy; OpenStreetMap contributors',
   },
   satellite: {
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attribution: 'Tiles (c) Esri',
+    attribution: 'Tiles &copy; Esri',
   },
 };
 
@@ -137,6 +147,7 @@ export default function IslandMap() {
           <RecenterControl center={center} />
         </MapContainer>
 
+        {/* base layer toggle */}
         <div className="absolute left-3 top-3 z-[1000] flex overflow-hidden rounded-full border hairline bg-white/95 shadow-soft">
           <button
             onClick={() => setBaseLayer('street')}
