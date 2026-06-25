@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useDograhWidget } from '../hooks/useDograhWidget';
+import IslandMap from './IslandMap';
 import {
   Mic,
   MicOff,
@@ -489,16 +490,7 @@ function TabPanel({ tab, onClose, reservations, favorites, favoriteBusinesses }:
       <div className="px-5 pb-5">
         {tab === 'map' && (
           <div className="space-y-3">
-            <div className="map-bg relative h-64 w-full overflow-hidden rounded-[24px] border hairline shadow-card">
-              <svg className="absolute inset-0 h-full w-full" viewBox="0 0 400 260" fill="none">
-                <path d="M0 170 Q 80 110 180 140 T 400 110" stroke="#6B8068" strokeWidth="2" fill="none" opacity="0.55" />
-                <path d="M0 210 Q 120 170 220 190 T 400 170" stroke="#BA6A43" strokeWidth="1.3" fill="none" opacity="0.5" strokeDasharray="4 5" />
-                {[{ x: 80, y: 150 }, { x: 220, y: 120 }, { x: 310, y: 160 }, { x: 160, y: 200 }].map((p, i) => (
-                  <g key={i}><circle cx={p.x} cy={p.y} r="12" fill="#BA6A43" opacity="0.18" /><circle cx={p.x} cy={p.y} r="5" fill="#BA6A43" /></g>
-                ))}
-              </svg>
-              <div className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-medium text-[#2A2420] shadow-soft"><MapPin className="mr-1 inline h-3 w-3 text-[#BA6A43]" /> 12 pins nearby</div>
-            </div>
+            <IslandMap />
             <div className="grid grid-cols-2 gap-2.5">{['Beaches', 'Food', 'Sunset', 'Transport', 'Stay', 'Events'].map((c) => (<div key={c} className="rounded-[20px] border hairline bg-white p-3 text-[13px] text-[#2A2420] shadow-soft">{c}</div>))}</div>
           </div>
         )}
