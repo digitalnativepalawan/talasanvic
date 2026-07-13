@@ -164,7 +164,7 @@ export function useTalaVoice() {
   // Call OpenRouter for AI response
   const getAIResponse = useCallback(async (userText: string): Promise<string> => {
     const apiKey = import.meta.env.VITE_OPENROUTER_KEY;
-    if (!apiKey) {
+    if (!apiKey || apiKey === "your_openrouter_api_key_here") {
       return "I'm sorry — my AI brain isn't configured yet. Please add your OpenRouter API key to the .env file.";
     }
 
