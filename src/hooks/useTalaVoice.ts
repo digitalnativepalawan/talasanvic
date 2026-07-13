@@ -41,11 +41,6 @@ declare global {
     SpeechRecognition?: new () => SpeechRecognitionInstance;
     webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
   }
-  interface Navigator {
-    gpu?: {
-      requestAdapter(options?: Record<string, unknown>): Promise<unknown>;
-    };
-  }
 }
 
 /**
