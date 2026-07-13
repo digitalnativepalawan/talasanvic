@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { KokoroTTS } from "kokoro-js";
+import { talaChat } from "@/lib/talaChat";
 
 // Type declarations for Web Speech API (Chrome/Edge only)
 interface SpeechRecognitionEvent extends Event {
@@ -66,12 +67,6 @@ interface ChatMessage {
   content: string;
 }
 
-const TALA_SYSTEM_PROMPT = `You are TALA, a warm and knowledgeable AI voice concierge for San Vicente, Palawan, Philippines. You help travelers discover food, tours, accommodations, beaches, sunsets, transport, and local events. You speak naturally, like a friendly local guide — concise, helpful, and conversational. Keep responses under 3 sentences unless the user asks for detail. Use a warm, welcoming tone. You know about Long Beach (14.7km), Port Barton island hopping, Cape San Vicente sunset cliff, local jeepney schedules, scooter rentals, and community events like bonfires. When recommending places, mention distances and prices when relevant. If someone asks about reservations, tell them you can help them reserve. You are not a bot — you ARE TALA, the island assistant.`;
-
-// OpenRouter API
-const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const OPENROUTER_MODEL = "openrouter/free";
-
 // Kokoro voice — af_heart is warm, natural American female
 const KOKORO_VOICE = "af_heart";
 
@@ -86,7 +81,7 @@ export function useTalaVoice() {
 
   const ttsRef = useRef<KokoroTTS | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
-  const chatHistoryRef = useRef<ChatMessage[]>([{ role: "system", content: TALA_SYSTEM_PROMPT }]);
+  const chatHistoryRef = useRef<ChatMessage[]>([]);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const isSpeakingRef = useRef(false);
   const shouldListenRef = useRef(false);
@@ -161,39 +156,21 @@ export function useTalaVoice() {
     }
   }, []);
 
-  // Call OpenRouter for AI response
+  // Call TALA's server function (reads OpenRouter key + knowledge from Supabase,
+  // server-side — the key never reaches the browser).
   const getAIResponse = useCallback(async (userText: string): Promise<string> => {
-    const apiKey = import.meta.env.VITE_OPENROUTER_KEY;
-    if (!apiKey) {
-      return "I'm sorry — my AI brain isn't configured yet. Please add your OpenRouter API key to the .env file.";
-    }
-
     chatHistoryRef.current.push({ role: "user", content: userText });
 
     try {
-      const res = await fetch(OPENROUTER_URL, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": window.location.origin,
-          "X-Title": "TALA - SanVic.ph",
-        },
-        body: JSON.stringify({
-          model: OPENROUTER_MODEL,
-          messages: chatHistoryRef.current,
-          max_tokens: 200,
-          temperature: 0.7,
-        }),
+      const result = await talaChat({
+        data: { messages: chatHistoryRef.current },
       });
 
-      if (!res.ok) {
-        throw new Error(`OpenRouter ${res.status}`);
+      if (!result.ok) {
+        return result.error ?? "Something went wrong — try again in a moment.";
       }
 
-      const data = await res.json();
-      const reply =
-        data.choices?.[0]?.message?.content ?? "I didn't catch that — could you say it again?";
+      const reply = result.reply;
 
       chatHistoryRef.current.push({ role: "assistant", content: reply });
 
@@ -204,7 +181,7 @@ export function useTalaVoice() {
 
       return reply;
     } catch (err) {
-      console.error("OpenRouter error:", err);
+      console.error("TALA chat error:", err);
       return "I'm having trouble connecting right now — try again in a moment.";
     }
   }, []);
