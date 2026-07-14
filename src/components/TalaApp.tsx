@@ -2,6 +2,13 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useTalaVoice } from "../hooks/useTalaVoice";
 import IslandMap from "./IslandMap";
 import {
+  getAdminConfig,
+  updateAdminConfig,
+  getKnowledgeBase,
+  upsertKnowledgeEntry,
+  deleteKnowledgeEntry,
+} from "../lib/talaAdmin";
+import {
   Mic,
   MicOff,
   Pause,
@@ -109,6 +116,17 @@ type QuickActionKey =
   | "stay"
   | "tonight"
   | "scooter";
+
+type KnowledgeEntry = {
+  id: string;
+  category: string;
+  question: string;
+  answer: string;
+  keywords: string | null;
+  active: boolean;
+  sort_order: number;
+  updated_at: string;
+};
 
 /* ---------- Local Storage Hook ---------- */
 function useLocalState<T>(key: string, initial: T): [T, (v: T | ((p: T) => T)) => void] {
@@ -950,6 +968,404 @@ function ReservationModal({
   );
 }
 
+/* ---------- Admin Panel Modal ---------- */
+function AdminPanelModal({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  // Config state
+  const [apiKey, setApiKey] = useState("");
+  const [model, setModel] = useState("openrouter/auto");
+  const [temperature, setTemperature] = useState(0.7);
+  const [maxTokens, setMaxTokens] = useState(200);
+
+  // Knowledge base state
+  const [entries, setEntries] = useState<KnowledgeEntry[]>([]);
+  const [editingEntry, setEditingEntry] = useState<KnowledgeEntry | null>(null);
+  const [showEntryForm, setShowEntryForm] = useState(false);
+
+  // Entry form state
+  const [entryCategory, setEntryCategory] = useState("general");
+  const [entryQuestion, setEntryQuestion] = useState("");
+  const [entryAnswer, setEntryAnswer] = useState("");
+  const [entryKeywords, setEntryKeywords] = useState("");
+  const [entryActive, setEntryActive] = useState(true);
+  const [entrySortOrder, setEntrySortOrder] = useState(0);
+
+  // Load data on open
+  useEffect(() => {
+    if (!open) return;
+    setLoading(true);
+    Promise.all([getAdminConfig(), getKnowledgeBase()]).then(([cfgRes, kbRes]) => {
+      if (cfgRes.ok) {
+        const c = cfgRes.config;
+        setApiKey(c.openrouter_api_key ?? "");
+        setModel(c.primary_model ?? "openrouter/auto");
+        setTemperature(c.temperature ?? 0.7);
+        setMaxTokens(c.guest_max_tokens ?? 200);
+      }
+      if (kbRes.ok) {
+        setEntries(kbRes.entries);
+      }
+      setLoading(false);
+    });
+  }, [open]);
+
+  // Toast helper
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2400);
+  };
+
+  // Save config
+  const handleSaveConfig = async () => {
+    setSaving(true);
+    const res = await updateAdminConfig({
+      data: {
+        openrouter_api_key: apiKey,
+        primary_model: model,
+        temperature,
+        guest_max_tokens: maxTokens,
+      },
+    });
+    setSaving(false);
+    if (res.ok) {
+      showToast("Config saved");
+    } else {
+      showToast("Error: " + (res.error ?? "unknown"));
+    }
+  };
+
+  // Open entry form for new or edit
+  const openNewEntry = () => {
+    setEditingEntry(null);
+    setEntryCategory("general");
+    setEntryQuestion("");
+    setEntryAnswer("");
+    setEntryKeywords("");
+    setEntryActive(true);
+    setEntrySortOrder(0);
+    setShowEntryForm(true);
+  };
+
+  const openEditEntry = (e: KnowledgeEntry) => {
+    setEditingEntry(e);
+    setEntryCategory(e.category);
+    setEntryQuestion(e.question);
+    setEntryAnswer(e.answer);
+    setEntryKeywords(e.keywords ?? "");
+    setEntryActive(e.active);
+    setEntrySortOrder(e.sort_order);
+    setShowEntryForm(true);
+  };
+
+  // Save entry
+  const handleSaveEntry = async () => {
+    setSaving(true);
+    const res = await upsertKnowledgeEntry({
+      data: {
+        id: editingEntry?.id,
+        category: entryCategory,
+        question: entryQuestion,
+        answer: entryAnswer,
+        keywords: entryKeywords,
+        active: entryActive,
+        sort_order: entrySortOrder,
+      },
+    });
+    setSaving(false);
+    if (res.ok) {
+      // Reload entries
+      const kbRes = await getKnowledgeBase();
+      if (kbRes.ok) setEntries(kbRes.entries);
+      setShowEntryForm(false);
+      showToast(editingEntry ? "Entry updated" : "Entry added");
+    } else {
+      showToast("Error: " + (res.error ?? "unknown"));
+    }
+  };
+
+  // Delete entry
+  const handleDeleteEntry = async (id: string) => {
+    if (!confirm("Delete this entry?")) return;
+    setSaving(true);
+    const res = await deleteKnowledgeEntry({ data: { id } });
+    setSaving(false);
+    if (res.ok) {
+      setEntries((prev) => prev.filter((e) => e.id !== id));
+      showToast("Entry deleted");
+    } else {
+      showToast("Error: " + (res.error ?? "unknown"));
+    }
+  };
+
+  if (!open) return null;
+
+  return (
+    <div className="fade-up fixed inset-0 z-50 flex items-end justify-center bg-[#2A2420]/40 backdrop-blur-sm sm:items-center">
+      <div className="w-full max-w-[430px] max-h-[85vh] overflow-y-auto rounded-t-[32px] bg-[#FAF5EB] p-5 pb-7 shadow-luxe sm:rounded-[32px]">
+        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#D7CAAB]" />
+
+        {/* Header */}
+        <div className="mb-4 flex items-start justify-between">
+          <div>
+            <div className="text-[10.5px] uppercase tracking-[0.2em] text-[#8A7E6E]">
+              Admin Panel
+            </div>
+            <div className="font-serif-display text-[24px] leading-tight text-[#2A2420]">
+              TALA Configuration
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex h-9 w-9 items-center justify-center rounded-full border hairline bg-white text-[#5A4F44]"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="py-12 text-center text-[14px] text-[#8A7E6E]">Loading…</div>
+        ) : (
+          <>
+            {/* OpenRouter Config Section */}
+            <div className="mb-4 rounded-[22px] border hairline bg-white p-4 shadow-soft">
+              <div className="mb-3 text-[11px] uppercase tracking-[0.2em] text-[#8A7E6E]">
+                OpenRouter API
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="mb-1 block text-[12px] text-[#5A4F44]">API Key</label>
+                  <input
+                    type="password"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="sk-or-..."
+                    className="w-full rounded-full border hairline bg-[#FAF5EB] px-3 py-2 text-[13px] text-[#2A2420] placeholder:text-[#8A7E6E] focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[12px] text-[#5A4F44]">Model</label>
+                  <input
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    placeholder="openrouter/auto"
+                    className="w-full rounded-full border hairline bg-[#FAF5EB] px-3 py-2 text-[13px] text-[#2A2420] placeholder:text-[#8A7E6E] focus:outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1 block text-[12px] text-[#5A4F44]">Temperature</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="2"
+                      value={temperature}
+                      onChange={(e) => setTemperature(parseFloat(e.target.value) || 0.7)}
+                      className="w-full rounded-full border hairline bg-[#FAF5EB] px-3 py-2 text-[13px] text-[#2A2420] focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-[12px] text-[#5A4F44]">Max Tokens</label>
+                    <input
+                      type="number"
+                      min="50"
+                      max="2000"
+                      value={maxTokens}
+                      onChange={(e) => setMaxTokens(parseInt(e.target.value) || 200)}
+                      className="w-full rounded-full border hairline bg-[#FAF5EB] px-3 py-2 text-[13px] text-[#2A2420] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleSaveConfig}
+                  disabled={saving}
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-[#2A2420] py-3 text-[13px] font-medium text-[#FAF5EB] shadow-card disabled:opacity-60"
+                >
+                  {saving ? "Saving…" : "Save Config"}
+                </button>
+              </div>
+            </div>
+
+            {/* Knowledge Base Section */}
+            <div className="rounded-[22px] border hairline bg-white p-4 shadow-soft">
+              <div className="mb-3 flex items-center justify-between">
+                <div className="text-[11px] uppercase tracking-[0.2em] text-[#8A7E6E]">
+                  Knowledge Base ({entries.length})
+                </div>
+                <button
+                  onClick={openNewEntry}
+                  className="flex items-center gap-1 rounded-full bg-[#2A2420] px-3 py-1.5 text-[11px] font-medium text-[#FAF5EB]"
+                >
+                  <Plus className="h-3 w-3" /> Add
+                </button>
+              </div>
+
+              {entries.length === 0 ? (
+                <div className="py-6 text-center text-[13px] text-[#8A7E6E]">
+                  No entries yet. Add your first knowledge entry.
+                </div>
+              ) : (
+                <div className="max-h-[300px] space-y-2 overflow-y-auto">
+                  {entries.map((e) => (
+                    <div
+                      key={e.id}
+                      className="flex items-start gap-2 rounded-[16px] bg-[#FAF5EB] p-3"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="rounded-full bg-[#F2ECDF] px-2 py-0.5 text-[10px] text-[#5A4F44]">
+                            {e.category}
+                          </span>
+                          {!e.active && (
+                            <span className="text-[10px] text-[#BA6A43]">inactive</span>
+                          )}
+                        </div>
+                        <div className="mt-1 text-[13px] font-medium text-[#2A2420] line-clamp-1">
+                          {e.question}
+                        </div>
+                        <div className="mt-0.5 text-[12px] text-[#8A7E6E] line-clamp-2">
+                          {e.answer}
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => openEditEntry(e)}
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F2ECDF] text-[#5A4F44]"
+                        >
+                          <Keyboard className="h-3 w-3" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteEntry(e.id)}
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F2ECDF] text-[#BA6A43]"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Entry Form Modal */}
+        {showEntryForm && (
+          <div className="fade-up fixed inset-0 z-[60] flex items-end justify-center bg-[#2A2420]/40 backdrop-blur-sm sm:items-center">
+            <div className="w-full max-w-[400px] rounded-t-[28px] bg-[#FAF5EB] p-5 pb-6 shadow-luxe sm:rounded-[28px]">
+              <div className="mx-auto mb-2 h-1 w-8 rounded-full bg-[#D7CAAB]" />
+              <div className="mb-4 flex items-center justify-between">
+                <div className="font-serif-display text-[18px] text-[#2A2420]">
+                  {editingEntry ? "Edit Entry" : "New Entry"}
+                </div>
+                <button
+                  onClick={() => setShowEntryForm(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full border hairline bg-white text-[#5A4F44]"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="mb-1 block text-[12px] text-[#5A4F44]">Category</label>
+                  <input
+                    value={entryCategory}
+                    onChange={(e) => setEntryCategory(e.target.value)}
+                    placeholder="e.g. food, beaches, tours"
+                    className="w-full rounded-full border hairline bg-white px-3 py-2 text-[13px] text-[#2A2420] placeholder:text-[#8A7E6E] focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[12px] text-[#5A4F44]">Question</label>
+                  <input
+                    value={entryQuestion}
+                    onChange={(e) => setEntryQuestion(e.target.value)}
+                    placeholder="What users might ask"
+                    className="w-full rounded-full border hairline bg-white px-3 py-2 text-[13px] text-[#2A2420] placeholder:text-[#8A7E6E] focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[12px] text-[#5A4F44]">Answer</label>
+                  <textarea
+                    value={entryAnswer}
+                    onChange={(e) => setEntryAnswer(e.target.value)}
+                    placeholder="TALA's response"
+                    rows={3}
+                    className="w-full rounded-[16px] border hairline bg-white px-3 py-2 text-[13px] text-[#2A2420] placeholder:text-[#8A7E6E] focus:outline-none resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[12px] text-[#5A4F44]">Keywords (comma-separated)</label>
+                  <input
+                    value={entryKeywords}
+                    onChange={(e) => setEntryKeywords(e.target.value)}
+                    placeholder="food, seafood, restaurant"
+                    className="w-full rounded-full border hairline bg-white px-3 py-2 text-[13px] text-[#2A2420] placeholder:text-[#8A7E6E] focus:outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1 block text-[12px] text-[#5A4F44]">Sort Order</label>
+                    <input
+                      type="number"
+                      value={entrySortOrder}
+                      onChange={(e) => setEntrySortOrder(parseInt(e.target.value) || 0)}
+                      className="w-full rounded-full border hairline bg-white px-3 py-2 text-[13px] text-[#2A2420] focus:outline-none"
+                    />
+                  </div>
+                  <div className="flex items-end pb-1">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={entryActive}
+                        onChange={(e) => setEntryActive(e.target.checked)}
+                        className="h-4 w-4 rounded border-[#D7CAAB] text-[#435947] focus:ring-[#435947]"
+                      />
+                      <span className="text-[12px] text-[#5A4F44]">Active</span>
+                    </label>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleSaveEntry}
+                  disabled={saving || !entryQuestion || !entryAnswer}
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-[#2A2420] py-3 text-[13px] font-medium text-[#FAF5EB] shadow-card disabled:opacity-60"
+                >
+                  {saving ? "Saving…" : editingEntry ? "Update Entry" : "Add Entry"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {toast && (
+          <div className="fade-up fixed bottom-24 left-1/2 z-[70] -translate-x-1/2 rounded-full bg-[#2A2420] px-4 py-2.5 text-[12.5px] text-[#FAF5EB] shadow-luxe">
+            {toast}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function TabPanel({
   tab,
   onClose,
@@ -1149,6 +1565,7 @@ export default function App() {
   const [isTyping, setIsTyping] = useState(false);
   const [reserveTarget, setReserveTarget] = useState<BusinessCard | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [adminOpen, setAdminOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
@@ -1371,7 +1788,10 @@ export default function App() {
             <button className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F2ECDF] text-[#5A4F44] shadow-soft">
               <Search className="h-4 w-4" />
             </button>
-            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F2ECDF] text-[#5A4F44] shadow-soft">
+            <button
+              onClick={() => setAdminOpen(true)}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F2ECDF] text-[#5A4F44] shadow-soft"
+            >
               <MoreHorizontal className="h-4 w-4" />
             </button>
           </div>
@@ -1676,6 +2096,10 @@ export default function App() {
         onClose={() => setReserveTarget(null)}
         business={reserveTarget}
         onConfirm={confirmReservation}
+      />
+      <AdminPanelModal
+        open={adminOpen}
+        onClose={() => setAdminOpen(false)}
       />
       <div className="mx-auto mt-6 max-w-[430px] text-center text-[11px] uppercase tracking-[0.24em] text-[#8A7E6E]">
         TALA · Built for San Vicente · Made for people
