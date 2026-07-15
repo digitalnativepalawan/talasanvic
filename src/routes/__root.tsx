@@ -87,8 +87,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "TALA AI Agent" },
       { name: "twitter:description", content: "Your San Vicente Island Assistant." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/T9Th5uPVO0aXJIb4F3X0QFtM7K13/social-images/social-1782095356826-WhatsApp_Image_2026-06-21_at_10.24.16_AM.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/T9Th5uPVO0aXJIb4F3X0QFtM7K13/social-images/social-1782095356826-WhatsApp_Image_2026-06-21_at_10.24.16_AM.webp" },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/T9Th5uPVO0aXJIb4F3X0QFtM7K13/social-images/social-1782095356826-WhatsApp_Image_2026-06-21_at_10.24.16_AM.webp",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/T9Th5uPVO0aXJIb4F3X0QFtM7K13/social-images/social-1782095356826-WhatsApp_Image_2026-06-21_at_10.24.16_AM.webp",
+      },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
