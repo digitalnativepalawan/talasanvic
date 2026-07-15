@@ -37,7 +37,7 @@ function buildKnowledgeBlock(rows: Array<{ category: string; question: string; a
 }
 
 export const talaChat = createServerFn({ method: "POST" })
-  .validator((data: unknown) => data as TalaChatInput)
+  .inputValidator((data: unknown) => data as TalaChatInput)
   .handler(async ({ data }) => {
     const baseUrl = process.env.SUPABASE_URL;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

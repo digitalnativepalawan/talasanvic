@@ -52,7 +52,7 @@ export const getAdminConfig = createServerFn({ method: "GET" }).handler(
 // UPDATE admin config (OpenRouter key, model, temperature, etc.)
 // ---------------------------------------------------------------------------
 export const updateAdminConfig = createServerFn({ method: "POST" })
-  .validator(
+  .inputValidator(
     (data: unknown) =>
       data as {
         openrouter_api_key?: string;
@@ -115,7 +115,7 @@ export const getKnowledgeBase = createServerFn({ method: "GET" }).handler(
 // UPSERT a knowledge base entry
 // ---------------------------------------------------------------------------
 export const upsertKnowledgeEntry = createServerFn({ method: "POST" })
-  .validator(
+  .inputValidator(
     (data: unknown) =>
       data as {
         id?: string;
@@ -168,7 +168,7 @@ export const upsertKnowledgeEntry = createServerFn({ method: "POST" })
 // DELETE a knowledge base entry
 // ---------------------------------------------------------------------------
 export const deleteKnowledgeEntry = createServerFn({ method: "POST" })
-  .validator((data: unknown) => data as { id: string })
+  .inputValidator((data: unknown) => data as { id: string })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import(
       "@/integrations/supabase/client.server"
