@@ -969,13 +969,7 @@ function ReservationModal({
 }
 
 /* ---------- Admin Panel Modal ---------- */
-function AdminPanelModal({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+function AdminPanelModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -1312,7 +1306,9 @@ function AdminPanelModal({
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-[12px] text-[#5A4F44]">Keywords (comma-separated)</label>
+                  <label className="mb-1 block text-[12px] text-[#5A4F44]">
+                    Keywords (comma-separated)
+                  </label>
                   <input
                     value={entryKeywords}
                     onChange={(e) => setEntryKeywords(e.target.value)}
@@ -2097,10 +2093,7 @@ export default function App() {
         business={reserveTarget}
         onConfirm={confirmReservation}
       />
-      <AdminPanelModal
-        open={adminOpen}
-        onClose={() => setAdminOpen(false)}
-      />
+      <AdminPanelModal open={adminOpen} onClose={() => setAdminOpen(false)} />
       <div className="mx-auto mt-6 max-w-[430px] text-center text-[11px] uppercase tracking-[0.24em] text-[#8A7E6E]">
         TALA · Built for San Vicente · Made for people
       </div>

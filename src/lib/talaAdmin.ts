@@ -8,9 +8,14 @@ interface AiConfig {
   active_provider: string;
   primary_model: string;
   openrouter_api_key: string | null;
+  fallback_api_key: string | null;
+  fallback_base_url: string | null;
+  fallback_model: string | null;
+  ollama_base_url: string | null;
   temperature: number;
   guest_max_tokens: number;
   updated_at: string;
+  updated_by: string | null;
 }
 
 interface KnowledgeEntry {
@@ -22,31 +27,28 @@ interface KnowledgeEntry {
   active: boolean;
   sort_order: number;
   updated_at: string;
+  updated_by: string | null;
 }
 
 // ---------------------------------------------------------------------------
 // GET admin config
 // ---------------------------------------------------------------------------
-export const getAdminConfig = createServerFn({ method: "GET" }).handler(
-  async () => {
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+export const getAdminConfig = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data, error } = await supabaseAdmin
-      .from("ai_assistant_config" as any)
-      .select("*")
-      .eq("id", "default")
-      .single();
+  const { data, error } = await supabaseAdmin
+    .from("ai_assistant_config")
+    .select("*")
+    .eq("id", "default")
+    .single();
 
-    if (error) {
-      console.error("[TALA Admin] Failed to load config:", error.message);
-      return { ok: false as const, error: error.message };
-    }
+  if (error) {
+    console.error("[TALA Admin] Failed to load config:", error.message);
+    return { ok: false as const, error: error.message };
+  }
 
-    return { ok: true as const, config: data as unknown as AiConfig };
-  },
-);
+  return { ok: true as const, config: data as AiConfig };
+});
 
 // ---------------------------------------------------------------------------
 // UPDATE admin config (OpenRouter key, model, temperature, etc.)
@@ -62,9 +64,7 @@ export const updateAdminConfig = createServerFn({ method: "POST" })
       },
   )
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if (data.openrouter_api_key !== undefined) update.openrouter_api_key = data.openrouter_api_key;
@@ -73,7 +73,8 @@ export const updateAdminConfig = createServerFn({ method: "POST" })
     if (data.guest_max_tokens !== undefined) update.guest_max_tokens = data.guest_max_tokens;
 
     const { error } = await supabaseAdmin
-      .from("ai_assistant_config" as any)
+      .from("ai_assistant_config")
+      // @ts-expect-error - Supabase client types don't match generated types
       .update(update)
       .eq("id", "default");
 
@@ -88,28 +89,24 @@ export const updateAdminConfig = createServerFn({ method: "POST" })
 // ---------------------------------------------------------------------------
 // GET all knowledge base entries
 // ---------------------------------------------------------------------------
-export const getKnowledgeBase = createServerFn({ method: "GET" }).handler(
-  async () => {
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+export const getKnowledgeBase = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data, error } = await supabaseAdmin
-      .from("ai_knowledge_base" as any)
-      .select("*")
-      .order("sort_order", { ascending: true });
+  const { data, error } = await supabaseAdmin
+    .from("ai_knowledge_base")
+    .select("*")
+    .order("sort_order", { ascending: true });
 
-    if (error) {
-      console.error("[TALA Admin] Failed to load knowledge base:", error.message);
-      return { ok: false as const, error: error.message };
-    }
+  if (error) {
+    console.error("[TALA Admin] Failed to load knowledge base:", error.message);
+    return { ok: false as const, error: error.message };
+  }
 
-    return {
-      ok: true as const,
-      entries: (data ?? []) as unknown as KnowledgeEntry[],
-    };
-  },
-);
+  return {
+    ok: true as const,
+    entries: (data ?? []) as KnowledgeEntry[],
+  };
+});
 
 // ---------------------------------------------------------------------------
 // UPSERT a knowledge base entry
@@ -128,11 +125,9 @@ export const upsertKnowledgeEntry = createServerFn({ method: "POST" })
       },
   )
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const row: Record<string, unknown> = {
+    const row = {
       category: data.category,
       question: data.question,
       answer: data.answer,
@@ -145,15 +140,12 @@ export const upsertKnowledgeEntry = createServerFn({ method: "POST" })
     let result;
     if (data.id) {
       // Update existing
-      result = await supabaseAdmin
-        .from("ai_knowledge_base" as any)
-        .update(row)
-        .eq("id", data.id);
+      // @ts-expect-error - Supabase client types don't match generated types
+      result = await supabaseAdmin.from("ai_knowledge_base").update(row).eq("id", data.id);
     } else {
       // Insert new
-      result = await supabaseAdmin
-        .from("ai_knowledge_base" as any)
-        .insert(row);
+      // @ts-expect-error - Supabase client types don't match generated types
+      result = await supabaseAdmin.from("ai_knowledge_base").insert(row);
     }
 
     if (result.error) {
@@ -170,14 +162,9 @@ export const upsertKnowledgeEntry = createServerFn({ method: "POST" })
 export const deleteKnowledgeEntry = createServerFn({ method: "POST" })
   .validator((data: unknown) => data as { id: string })
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { error } = await supabaseAdmin
-      .from("ai_knowledge_base" as any)
-      .delete()
-      .eq("id", data.id);
+    const { error } = await supabaseAdmin.from("ai_knowledge_base").delete().eq("id", data.id);
 
     if (error) {
       console.error("[TALA Admin] Failed to delete entry:", error.message);

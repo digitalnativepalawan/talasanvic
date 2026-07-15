@@ -6,7 +6,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "TALA — SanVic.ph AI Voice Concierge" },
-      { name: "description", content: "TALA is your AI voice concierge for San Vicente, Palawan — discover food, tours, stays, and fellow travelers." },
+      {
+        name: "description",
+        content:
+          "TALA is your AI voice concierge for San Vicente, Palawan — discover food, tours, stays, and fellow travelers.",
+      },
       { property: "og:title", content: "TALA — SanVic.ph AI Voice Concierge" },
       { property: "og:description", content: "Your AI voice concierge for San Vicente, Palawan." },
     ],
